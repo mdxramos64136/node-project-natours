@@ -217,5 +217,11 @@
         "name": "Test Tour",
         "duration": 10,
         "dificulty": "easy"
+    },
+    {
+        "name": "Test Tour 5",
+        "duration": 8,
+        "dificulty": "hard",
+        "id": 11
     }
 ]

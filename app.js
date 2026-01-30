@@ -1,12 +1,11 @@
 /**
- * Notes and explanations in the app.txt file.
  * It's a good practice start with the core modules
  * */
 const fs = require("fs");
 const express = require("express");
 
 const app = express();
-app.use(express.json());
+app.use(express.json()); //auto parse to json
 
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
@@ -20,12 +19,34 @@ app.get("/api/v1/tours", (req, res) => {
   });
 });
 
+//Route that can accept variable (:id)
+// the param is a number in a string formar. Parse it to a number.
+//Another way to convert is multiplying the value by a number:
+//.const id = req.params.id * 1;
+app.get("/api/v1/tours/:id", (req, res) => {
+  const singleTour = tours.find((el) => el.id === +req.params.id);
+  console.log(req.params);
+
+  if (+req.params.id > tours.length) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Invalid id",
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    params: req.params,
+    result: singleTour,
+  });
+});
+
 app.post("/api/v1/tours", (req, res) => {
-  //console.log(req.body); // from server to client?
+  console.log(req.body);
   // get the id from the last obj and +1
   const newId = tours[tours.length - 1].id + 1;
 
-  const newTour = { id: newId, ...req.body };
+  const newTour = { ...req.body, id: newId };
   //const newTour = Object.assign({ id: newId }, req.body);
   //push into the array
   tours.push(newTour);
@@ -35,16 +56,13 @@ app.post("/api/v1/tours", (req, res) => {
     JSON.stringify(tours),
     (err) => {
       res.status(201).json({
-        data: "success",
+        status: "success",
         data: {
           tour: newTour,
         },
       });
     },
   );
-
-  //Persist data. Write to a file:
-  // res.send("Done"); //from client to server?
 });
 
 //set/ start a server
