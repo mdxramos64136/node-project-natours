@@ -19,7 +19,7 @@ const getAllTours = () => (req, res) => {
   });
 };
 
-const getSingleTour = () => (req, res) => {
+const getSingleTour = (req, res) => {
   const singleTour = tours.find((el) => el.id === +req.params.id);
   console.log(req.params);
 
@@ -37,7 +37,7 @@ const getSingleTour = () => (req, res) => {
   });
 };
 /****************************** POST ******************************/
-const createTour = () => (req, res) => {
+const createTour = (req, res) => {
   console.log("From Postman", req.body);
   // get the id from the last obj and +1
   const newId = tours[tours.length - 1].id + 1;
