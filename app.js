@@ -11,6 +11,7 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
 );
 
+/****************************** GET ROUTES ******************************/
 app.get("/api/v1/tours", (req, res) => {
   res.status(200).json({
     status: "success",
@@ -40,9 +41,9 @@ app.get("/api/v1/tours/:id", (req, res) => {
     result: singleTour,
   });
 });
-
+/****************************** POST ******************************/
 app.post("/api/v1/tours", (req, res) => {
-  console.log(req.body);
+  console.log("From Postman", req.body);
   // get the id from the last obj and +1
   const newId = tours[tours.length - 1].id + 1;
 
@@ -61,11 +62,59 @@ app.post("/api/v1/tours", (req, res) => {
           tour: newTour,
         },
       });
+      console.log("New tour has been inserted");
     },
   );
 });
 
-//set/ start a server
+/****************************** PATCH ******************************/
+
+app.patch("/api/v1/tours/:id", (req, res) => {
+  if (+req.params.id > tours.length) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Invalid id!",
+    });
+  }
+
+  res.status(200).json({
+    status: "succsess",
+    data: {
+      tour: "<Updated tour here>",
+    },
+  });
+});
+
+/****************************** DELETE ******************************/
+
+app.delete("/api/v1/tours/:id", (req, res) => {
+  if (+req.params.id > tours.length) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Invalid id!",
+    });
+  }
+
+  const updatedTours = tours.filter((el) => el.id !== +req.params.id);
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(updatedTours),
+    (err) => {
+      if (err) console.log(err);
+      console.log(data);
+    },
+  );
+
+  // status 204 (no content) = delete resquest
+  //In this case we don't send any back back. Instead we jus send 'null.
+  res.status(204).json({
+    status: "succsess",
+    data: null,
+  });
+});
+
+/************************* Start the server ************************/
 const port = 3000;
 app.listen(port, () => {
   console.log(`App running on port ${port}!`);
