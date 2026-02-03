@@ -10,21 +10,16 @@ app.use(express.json()); //auto parse to json
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
 );
-
 /****************************** GET ROUTES ******************************/
-app.get("/api/v1/tours", (req, res) => {
+const getAllTours = () => (req, res) => {
   res.status(200).json({
     status: "success",
     results: tours.length,
     data: { tours },
   });
-});
+};
 
-//Route that can accept variable (:id)
-// the param is a number in a string formar. Parse it to a number.
-//Another way to convert is multiplying the value by a number:
-//.const id = req.params.id * 1;
-app.get("/api/v1/tours/:id", (req, res) => {
+const getSingleTour = () => (req, res) => {
   const singleTour = tours.find((el) => el.id === +req.params.id);
   console.log(req.params);
 
@@ -40,9 +35,9 @@ app.get("/api/v1/tours/:id", (req, res) => {
     params: req.params,
     result: singleTour,
   });
-});
+};
 /****************************** POST ******************************/
-app.post("/api/v1/tours", (req, res) => {
+const createTour = () => (req, res) => {
   console.log("From Postman", req.body);
   // get the id from the last obj and +1
   const newId = tours[tours.length - 1].id + 1;
@@ -65,11 +60,9 @@ app.post("/api/v1/tours", (req, res) => {
       console.log("New tour has been inserted");
     },
   );
-});
-
+};
 /****************************** PATCH ******************************/
-
-app.patch("/api/v1/tours/:id", (req, res) => {
+const updateTour = (req, res) => {
   if (+req.params.id > tours.length) {
     return res.status(404).json({
       status: "fail",
@@ -83,11 +76,9 @@ app.patch("/api/v1/tours/:id", (req, res) => {
       tour: "<Updated tour here>",
     },
   });
-});
+};
 
-/****************************** DELETE ******************************/
-
-app.delete("/api/v1/tours/:id", (req, res) => {
+const deleteTour = (req, res) => {
   if (+req.params.id > tours.length) {
     return res.status(404).json({
       status: "fail",
@@ -102,7 +93,6 @@ app.delete("/api/v1/tours/:id", (req, res) => {
     JSON.stringify(updatedTours),
     (err) => {
       if (err) console.log(err);
-      console.log(data);
     },
   );
 
@@ -112,7 +102,20 @@ app.delete("/api/v1/tours/:id", (req, res) => {
     status: "succsess",
     data: null,
   });
-});
+};
+
+//Route that can accept variable (:id)
+// the param is a number in a string formar. Parse it to a number.
+//Another way to convert is multiplying the value by a number:
+//.const id = req.params.id * 1;
+
+app.route("/api/v1/tours").get(getAllTours).post(createTour);
+
+app
+  .route("/api/v1/tours/:id")
+  .get(getSingleTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 /************************* Start the server ************************/
 const port = 3000;
