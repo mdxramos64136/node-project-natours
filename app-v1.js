@@ -24,8 +24,9 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
 );
 
-/**************************** ROUTE HANDLERS ****************************/
-/********************************** GET *********************************/
+//Route handlers:
+
+/****************************** GET ROUTES ******************************/
 
 const getAllTours = (req, res) => {
   res.status(200).json({
@@ -121,67 +122,18 @@ const deleteTour = (req, res) => {
   });
 };
 
-const getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const getSingleUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const createUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-/*************************** ROUTES ***************************/
 //Route that can accept variable (:id)
 // the param is a number in a string formar. Parse it to a number.
 //Another way to convert is multiplying the value by a number:
 //.const id = req.params.id * 1;
+// Routes:
+app.route("/api/v1/tours").get(getAllTours).post(createTour);
 
-//insteadof using app. we 'll now use tourRouter.
-// express.Router() returns a function
-// to connect it with our application we will use it as middleware:
-// app.use('route', tourRouter), where route  = /api/v1/tours
-// tourRouter is the middlesware and we want to use that mw for this route
-const tourRouter = express.Router(); //middleware.
-const userRouter = express.Router();
-//mounting routers
-app.use("/api/v1/tours", tourRouter);
-app.use("/api/v1/users", userRouter);
-
-tourRouter.route("/").get(getAllTours).post(createTour);
-
-tourRouter
-  .route("/:id")
+app
+  .route("/api/v1/tours/:id")
   .get(getSingleTour)
   .patch(updateTour)
   .delete(deleteTour);
-
-userRouter.route("/").get(getAllUsers).post(createUser);
-userRouter.route("/:id").get(getSingleUser).patch(updateUser).patch(deleteUser);
 
 /************************* Start the server ************************/
 const port = 3000;
