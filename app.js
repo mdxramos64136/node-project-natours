@@ -1,9 +1,8 @@
-/**
- * It's a good practice start with the core modules
- * */
 const fs = require("fs");
 const express = require("express");
 const morgan = require("morgan");
+const tourRouter = require("./routes/tourRoutes");
+const userRouter = require("./routes/userRoutes");
 
 const app = express();
 // Middlewares
@@ -20,171 +19,16 @@ app.use((req, res, next) => {
   next();
 });
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`),
-);
-
-/**************************** ROUTE HANDLERS ****************************/
-/********************************** GET *********************************/
-
-const getAllTours = (req, res) => {
-  res.status(200).json({
-    status: "success",
-    reqestedAt: req.requestedTime,
-    results: tours.length,
-    data: { tours },
-  });
-};
-
-const getSingleTour = (req, res) => {
-  const singleTour = tours.find((el) => el.id === +req.params.id);
-  console.log(req.params);
-
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid id",
-    });
-  }
-
-  res.status(200).json({
-    status: "success",
-    params: req.params,
-    result: singleTour,
-  });
-};
-/****************************** POST ******************************/
-const createTour = (req, res) => {
-  console.log("From Postman", req.body);
-  // get the id from the last obj and +1
-  const newId = tours[tours.length - 1].id + 1;
-
-  const newTour = { ...req.body, id: newId };
-  //const newTour = Object.assign({ id: newId }, req.body);
-  //push into the array
-  tours.push(newTour);
-
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      res.status(201).json({
-        status: "success",
-        data: {
-          tour: newTour,
-        },
-      });
-      console.log("New tour has been inserted");
-    },
-  );
-};
-/****************************** PATCH ******************************/
-const updateTour = (req, res) => {
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid id!",
-    });
-  }
-
-  res.status(200).json({
-    status: "succsess",
-    data: {
-      tour: "<Updated tour here>",
-    },
-  });
-};
-
-const deleteTour = (req, res) => {
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid id!",
-    });
-  }
-
-  const updatedTours = tours.filter((el) => el.id !== +req.params.id);
-
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(updatedTours),
-    (err) => {
-      if (err) console.log(err);
-    },
-  );
-
-  // status 204 (no content) = delete resquest
-  //In this case we don't send any back back. Instead we jus send 'null.
-  res.status(204).json({
-    status: "succsess",
-    data: null,
-  });
-};
-
-const getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const getSingleUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const createUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
-
-const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined",
-  });
-};
 /*************************** ROUTES ***************************/
-//Route that can accept variable (:id)
-// the param is a number in a string formar. Parse it to a number.
-//Another way to convert is multiplying the value by a number:
-//.const id = req.params.id * 1;
 
 //insteadof using app. we 'll now use tourRouter.
 // express.Router() returns a function
 // to connect it with our application we will use it as middleware:
 // app.use('route', tourRouter), where route  = /api/v1/tours
 // tourRouter is the middlesware and we want to use that mw for this route
-const tourRouter = express.Router(); //middleware.
-const userRouter = express.Router();
-//mounting routers
+
+//mounting the routers
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 
-tourRouter.route("/").get(getAllTours).post(createTour);
-
-tourRouter
-  .route("/:id")
-  .get(getSingleTour)
-  .patch(updateTour)
-  .delete(deleteTour);
-
-userRouter.route("/").get(getAllUsers).post(createUser);
-userRouter.route("/:id").get(getSingleUser).patch(updateUser).patch(deleteUser);
-
-/************************* Start the server ************************/
-const port = 3000;
-app.listen(port, () => {
-  console.log(`App running on port ${port}!`);
-});
+module.exports = app; // to server.js
