@@ -8,6 +8,9 @@ const app = express();
 // Middlewares
 app.use(morgan("dev"));
 app.use(express.json()); //middleware. auto parse to json
+
+// access static file system:
+app.use(express.static(`${__dirname}/public`));
 //creating and adding a function to the middleware stack:
 app.use((req, res, next) => {
   console.log("Hello from middleware 🙋🏽‍♂️");
