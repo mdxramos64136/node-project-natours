@@ -1,9 +1,26 @@
-/** This is where the router handlers live */
+/** This is where the router handlers live
+ * Instead of repeat functions to check the id, put that function in
+ * the middleware
+ *
+ */
 const fs = require("fs");
 
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
 );
+
+//middlware for an especific param: It will be the middleware function of the
+// .params() in the tourRoutes
+exports.checkID = (req, res, next, value) => {
+  console.log(`Tour id = ${value}!`);
+  if (+req.params.id > tours.length) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Invalid id",
+    });
+  }
+  next();
+};
 
 /**************************** ROUTE HANDLERS ****************************/
 exports.getAllTours = (req, res) => {
@@ -18,13 +35,6 @@ exports.getAllTours = (req, res) => {
 exports.getSingleTour = (req, res) => {
   const singleTour = tours.find((el) => el.id === +req.params.id);
   console.log(req.params);
-
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid id",
-    });
-  }
 
   res.status(200).json({
     status: "success",
@@ -59,13 +69,6 @@ exports.createTour = (req, res) => {
 };
 /****************************** PATCH ******************************/
 exports.updateTour = (req, res) => {
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid id!",
-    });
-  }
-
   res.status(200).json({
     status: "succsess",
     data: {
@@ -75,13 +78,6 @@ exports.updateTour = (req, res) => {
 };
 
 exports.deleteTour = (req, res) => {
-  if (+req.params.id > tours.length) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid id!",
-    });
-  }
-
   const updatedTours = tours.filter((el) => el.id !== +req.params.id);
 
   fs.writeFile(
